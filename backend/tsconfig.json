@@ -1,44 +1,41 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // File Layout
-    "rootDir": "./src",
+    // --- Layout ---
+    "rootDir": ".",                 // incluye src, tests y setup.ts
     "outDir": "./dist",
 
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
-    "module": "nodenext",
-    "target": "esnext",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    // --- Runtime: Node ESM ---
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
 
-    // Other Outputs
+    // --- Tipos y libs ---
+    "lib": ["ES2022"],
+    "types": ["node", "jest"],
+
+    // --- Interop / imports ---
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+
+    // --- Output extra (opcional) ---
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
 
-    // Stricter Typechecking Options
+    // --- Checks / estilo ---
+    "strict": true,
+    "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
-
-    // Recommended Options
-    "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
-  }
+
+    // Claves para evitar TS1295 con imports ESM en .ts
+    "verbatimModuleSyntax": false,
+
+    // ts-jest compila archivo por archivo; mejor desactivar esto aquí
+    "isolatedModules": false
+  },
+  "include": ["src", "setup.ts", "**/*.ts"],
+  "exclude": ["node_modules"]
 }

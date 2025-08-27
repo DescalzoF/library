@@ -7,22 +7,51 @@ export interface BookSearchFilters {
     title?: string;
     author?: string;
     genre?: string;
+    // Add a general search parameter that searches across all fields
+    search?: string;
 }
 
 export class BooksRepository {
     async getAllBooks(filters?: BookSearchFilters): Promise<Book[]> {
         const where: any = {};
 
-        if (filters?.title) {
-            where.title = { contains: filters.title, mode: 'insensitive' };
-        }
+        // If there's a general search term, search across title, author, and genre
+        if (filters?.search && filters.search.trim()) {
+            const searchTerm = filters.search.trim();
 
-        if (filters?.author) {
-            where.author = { contains: filters.author, mode: 'insensitive' };
-        }
+            where.OR = [
+                {
+                    title: {
+                        contains: searchTerm,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    author: {
+                        contains: searchTerm,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    genre: {
+                        contains: searchTerm,
+                        mode: 'insensitive'
+                    }
+                }
+            ];
+        } else {
+            // Original individual field filtering
+            if (filters?.title) {
+                where.title = { contains: filters.title, mode: 'insensitive' };
+            }
 
-        if (filters?.genre) {
-            where.genre = { contains: filters.genre, mode: 'insensitive' };
+            if (filters?.author) {
+                where.author = { contains: filters.author, mode: 'insensitive' };
+            }
+
+            if (filters?.genre) {
+                where.genre = { contains: filters.genre, mode: 'insensitive' };
+            }
         }
 
         return prisma.book.findMany({

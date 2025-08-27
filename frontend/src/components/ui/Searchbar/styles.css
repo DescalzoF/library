@@ -1,9 +1,103 @@
+:root {
+    --color-primary: #2c3e50;
+    --color-secondary: #34495e;
+    --color-accent: #e74c3c;
+    --color-success: #27ae60;
+    --color-warning: #f39c12;
+    --color-grey-dark: #7f8c8d;
+    --color-grey-medium: #bdc3c7;
+    --color-grey-light: #ecf0f1;
+    --color-white: #ffffff;
+    --color-text: #2c3e50;
+    --color-text-light: #7f8c8d;
+}
+
+.search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    gap: 16px;
+}
+
+.search-type-toggle {
+    display: flex;
+    border: 2px solid var(--color-grey-dark);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.toggle-button {
+    padding: 8px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: none;
+    background: var(--color-grey-light);
+    color: var(--color-grey-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-right: 1px solid var(--color-grey-dark);
+}
+
+.toggle-button:last-child {
+    border-right: none;
+}
+
+.toggle-button:hover {
+    background: var(--color-grey-medium);
+}
+
+.toggle-button.active {
+    background: var(--color-accent);
+    color: var(--color-white);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
 .search-bar {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 20px 0;
     justify-content: center;
+}
+
+.simple-search {
+    flex-wrap: wrap;
+}
+
+.advanced-search {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    min-width: 600px;
+}
+
+.advanced-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    padding: 16px;
+    background: var(--color-grey-light);
+    border: 2px solid var(--color-grey-medium);
+    border-radius: 4px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.filter-group label {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-grey-dark);
 }
 
 .search-input {
@@ -14,12 +108,18 @@
     border-radius: 4px;
     background: var(--color-white);
     color: var(--color-text);
-    width: 300px;
     box-shadow:
             inset 1px 1px 0 rgba(0,0,0,0.2),
             2px 2px 4px rgba(0,0,0,0.1);
     text-transform: uppercase;
     letter-spacing: 1px;
+    min-width: 250px;
+}
+
+.filter-input {
+    min-width: 150px;
+    font-size: 12px;
+    padding: 8px 12px;
 }
 
 .search-input:focus {
@@ -27,7 +127,19 @@
     border-color: var(--color-accent);
     box-shadow:
             inset 1px 1px 0 rgba(0,0,0,0.2),
-            0 0 0 2px rgba(211,47,47,0.2);
+            0 0 0 2px rgba(231,76,60,0.2);
+}
+
+.search-input::placeholder {
+    color: var(--color-text-light);
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.search-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
 }
 
 .search-button {
@@ -59,4 +171,63 @@
     box-shadow:
             inset 1px 1px 2px rgba(0,0,0,0.3),
             1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.clear-button {
+    padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 2px solid var(--color-warning);
+    border-radius: 4px;
+    background: linear-gradient(135deg, var(--color-warning) 0%, #f1c40f 50%, var(--color-warning) 100%);
+    color: var(--color-white);
+    cursor: pointer;
+    box-shadow:
+            inset 1px 1px 0 rgba(255,255,255,0.3),
+            inset -1px -1px 0 rgba(0,0,0,0.3),
+            2px 2px 4px rgba(0,0,0,0.2);
+    transition: all 0.1s ease;
+}
+
+.clear-button:hover {
+    background: linear-gradient(135deg, #f1c40f 0%, var(--color-warning) 50%, #f1c40f 100%);
+    transform: translateY(-1px);
+}
+
+.clear-button:active {
+    transform: translateY(1px);
+    box-shadow:
+            inset 1px 1px 2px rgba(0,0,0,0.3),
+            1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .advanced-search {
+        min-width: auto;
+        max-width: 100%;
+    }
+
+    .advanced-filters {
+        grid-template-columns: 1fr;
+        min-width: auto;
+    }
+
+    .search-input {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .search-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-button,
+    .clear-button {
+        width: 200px;
+    }
 }

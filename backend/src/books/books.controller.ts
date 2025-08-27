@@ -19,20 +19,26 @@ export class BooksController {
 
     getAllBooks = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { title, author, genre } = req.query;
+            const { title, author, genre, search } = req.query;
 
             const filters: BookSearchFilters = {};
 
-            if (typeof title === 'string' && title.trim()) {
-                filters.title = title.trim();
-            }
+            // Priority to general search if provided
+            if (typeof search === 'string' && search.trim()) {
+                filters.search = search.trim();
+            } else {
+                // Individual field filters
+                if (typeof title === 'string' && title.trim()) {
+                    filters.title = title.trim();
+                }
 
-            if (typeof author === 'string' && author.trim()) {
-                filters.author = author.trim();
-            }
+                if (typeof author === 'string' && author.trim()) {
+                    filters.author = author.trim();
+                }
 
-            if (typeof genre === 'string' && genre.trim()) {
-                filters.genre = genre.trim();
+                if (typeof genre === 'string' && genre.trim()) {
+                    filters.genre = genre.trim();
+                }
             }
 
             const books = await this.booksService.getAllBooks(filters);
