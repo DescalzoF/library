@@ -20,7 +20,7 @@ export interface SearchFilters {
     title?: string;
     author?: string;
     genre?: string;
-    search?: string; // Add general search parameter
+    search?: string; // General search parameter
 }
 
 export const booksApi = {
@@ -54,6 +54,66 @@ export const booksApi = {
             return await response.json();
         } catch (error) {
             console.error('Error fetching books:', error);
+            throw error;
+        }
+    },
+
+    // New method: Search by title only using dedicated endpoint
+    getBooksByTitle: async (title: string): Promise<ApiResponse<Book[]>> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/books/search/title?title=${encodeURIComponent(title)}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching books by title:', error);
+            throw error;
+        }
+    },
+
+    // New method: Search by author only using dedicated endpoint
+    getBooksByAuthor: async (author: string): Promise<ApiResponse<Book[]>> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/books/search/author?author=${encodeURIComponent(author)}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching books by author:', error);
+            throw error;
+        }
+    },
+
+    // New method: Search by genre only using dedicated endpoint
+    getBooksByGenre: async (genre: string): Promise<ApiResponse<Book[]>> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/books/search/genre?genre=${encodeURIComponent(genre)}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching books by genre:', error);
+            throw error;
+        }
+    },
+
+    // New method: General search across all fields using dedicated endpoint
+    searchBooks: async (searchTerm: string): Promise<ApiResponse<Book[]>> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(searchTerm)}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error searching books:', error);
             throw error;
         }
     },

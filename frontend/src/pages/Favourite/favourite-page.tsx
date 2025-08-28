@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Sidebar from "../../components/ui/Sidebar";
-import SearchBar from "../../components/ui/Searchbar";
+import SearchBar, {type SearchFilters } from "../../components/ui/Searchbar";
 import BookCard from "../../components/ui/Card";
 import { booksApi, type Book } from '../../api/bookAPI';
 import './styles.css';
@@ -10,25 +10,45 @@ const FavouritePage = () => {
     const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         loadFavouriteBooks();
     }, []);
 
     useEffect(() => {
-        if (searchQuery.trim() === '') {
+        // Filter books locally when search filters change
+        const hasActiveFilters = Object.values(searchFilters).some(value => value && value.trim() !== '');
+
+        if (!hasActiveFilters) {
             setFilteredBooks(favouriteBooks);
         } else {
-            const filtered = favouriteBooks.filter(book =>
-                book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                book.genre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                book.synopsis.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            const filtered = favouriteBooks.filter(book => {
+                // Handle general search
+                if (searchFilters.search) {
+                    const searchTerm = searchFilters.search.toLowerCase();
+                    return (
+                        book.title.toLowerCase().includes(searchTerm) ||
+                        (book.author || '').toLowerCase().includes(searchTerm) ||
+                        (book.genre || '').toLowerCase().includes(searchTerm) ||
+                        (book.synopsis || '').toLowerCase().includes(searchTerm)
+                    );
+                }
+
+                // Handle individual field searches
+                const matchesTitle = !searchFilters.title ||
+                    book.title.toLowerCase().includes(searchFilters.title.toLowerCase());
+                const matchesAuthor = !searchFilters.author ||
+                    (book.author || '').toLowerCase().includes(searchFilters.author.toLowerCase());
+                const matchesGenre = !searchFilters.genre ||
+                    (book.genre || '').toLowerCase().includes(searchFilters.genre.toLowerCase());
+
+                return matchesTitle && matchesAuthor && matchesGenre;
+            });
             setFilteredBooks(filtered);
         }
-    }, [favouriteBooks, searchQuery]);
+    }, [favouriteBooks, searchFilters]);
 
     const loadFavouriteBooks = async () => {
         setLoading(true);
@@ -50,8 +70,16 @@ const FavouritePage = () => {
         }
     };
 
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
+    const handleSearch = (filters: SearchFilters) => {
+        setIsSearching(true);
+        setSearchFilters(filters);
+        // Small delay to show searching state
+        setTimeout(() => setIsSearching(false), 100);
+    };
+
+    const handleClearSearch = () => {
+        setSearchFilters({});
+        setIsSearching(false);
     };
 
     const handleToggleFavourite = async (bookId: string, currentlyFavourited: boolean) => {
@@ -78,6 +106,19 @@ const FavouritePage = () => {
             console.error('Error toggling favourite:', err);
             alert(err instanceof Error ? err.message : 'Failed to update favourites');
         }
+    };
+
+    const getSearchSummary = () => {
+        const hasActiveFilters = Object.values(searchFilters).some(value => value && value.trim() !== '');
+        if (!hasActiveFilters) return null;
+
+        const filterParts = [];
+        if (searchFilters.search) filterParts.push(`"${searchFilters.search}"`);
+        if (searchFilters.title) filterParts.push(`title: "${searchFilters.title}"`);
+        if (searchFilters.author) filterParts.push(`author: "${searchFilters.author}"`);
+        if (searchFilters.genre) filterParts.push(`genre: "${searchFilters.genre}"`);
+
+        return filterParts.join(', ');
     };
 
     if (loading) {
@@ -117,6 +158,8 @@ const FavouritePage = () => {
         );
     }
 
+    const searchSummary = getSearchSummary();
+
     return (
         <div className="favourite-page">
             <Sidebar />
@@ -124,15 +167,21 @@ const FavouritePage = () => {
                 <div className="page-header">
                     <h1>Your Favourites</h1>
                     <h2>Books you've added to your collection</h2>
-                    {favouriteBooks.length > 0 && <SearchBar onSearch={handleSearch} />}
+                    {favouriteBooks.length > 0 && <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />}
                 </div>
 
-                {searchQuery && favouriteBooks.length > 0 && (
+                {isSearching && (
+                    <div className="search-results-info">
+                        <p>Searching...</p>
+                    </div>
+                )}
+
+                {!isSearching && searchSummary && favouriteBooks.length > 0 && (
                     <div className="search-results-info">
                         {filteredBooks.length > 0 ? (
-                            <p>Found {filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''} for "{searchQuery}"</p>
+                            <p>Found {filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''} for {searchSummary}</p>
                         ) : (
-                            <p>No favourite books found for "{searchQuery}"</p>
+                            <p>No favourite books found for {searchSummary}</p>
                         )}
                     </div>
                 )}
@@ -158,7 +207,7 @@ const FavouritePage = () => {
                                 onToggleFavourite={handleToggleFavourite}
                             />
                         ))
-                    ) : searchQuery ? (
+                    ) : searchSummary ? (
                         <div className="no-results">
                             <p>No favourite books match your search.</p>
                         </div>

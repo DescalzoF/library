@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './styles.css';
 import Sidebar from "../../components/ui/Sidebar";
-import SearchBar from "../../components/ui/Searchbar";
+import SearchBar, {type SearchFilters } from "../../components/ui/Searchbar";
 import BookCard from "../../components/ui/Card";
 import { booksApi, type Book } from '../../api/bookAPI';
 
@@ -11,25 +11,12 @@ const ExplorePage = () => {
     const [libraryBooks, setLibraryBooks] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         loadData();
     }, []);
-
-    useEffect(() => {
-        if (searchQuery.trim() === '') {
-            setFilteredBooks(books);
-        } else {
-            const filtered = books.filter(book =>
-                book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                book.genre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                book.synopsis.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-            setFilteredBooks(filtered);
-        }
-    }, [books, searchQuery]);
 
     const loadData = async () => {
         setLoading(true);
@@ -44,6 +31,7 @@ const ExplorePage = () => {
 
             if (booksResponse.success) {
                 setBooks(booksResponse.data);
+                setFilteredBooks(booksResponse.data);
             } else {
                 throw new Error(booksResponse.message || 'Failed to load books');
             }
@@ -62,8 +50,29 @@ const ExplorePage = () => {
         }
     };
 
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
+    const handleSearch = async (filters: SearchFilters) => {
+        setIsSearching(true);
+        setSearchFilters(filters);
+
+        try {
+            const response = await booksApi.getAllBooks(filters);
+            if (response.success) {
+                setFilteredBooks(response.data);
+            } else {
+                throw new Error(response.message || 'Search failed');
+            }
+        } catch (err) {
+            console.error('Search error:', err);
+            setError(err instanceof Error ? err.message : 'Search failed');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleClearSearch = () => {
+        setSearchFilters({});
+        setFilteredBooks(books);
+        setIsSearching(false);
     };
 
     const handleToggleFavourite = async (bookId: string, currentlyFavourited: boolean) => {
@@ -91,6 +100,19 @@ const ExplorePage = () => {
             console.error('Error toggling favourite:', err);
             alert(err instanceof Error ? err.message : 'Failed to update favourites');
         }
+    };
+
+    const getSearchSummary = () => {
+        const hasActiveFilters = Object.values(searchFilters).some(value => value && value.trim() !== '');
+        if (!hasActiveFilters) return null;
+
+        const filterParts = [];
+        if (searchFilters.search) filterParts.push(`"${searchFilters.search}"`);
+        if (searchFilters.title) filterParts.push(`title: "${searchFilters.title}"`);
+        if (searchFilters.author) filterParts.push(`author: "${searchFilters.author}"`);
+        if (searchFilters.genre) filterParts.push(`genre: "${searchFilters.genre}"`);
+
+        return filterParts.join(', ');
     };
 
     if (loading) {
@@ -130,6 +152,8 @@ const ExplorePage = () => {
         );
     }
 
+    const searchSummary = getSearchSummary();
+
     return (
         <div className="explore-page">
             <Sidebar />
@@ -137,15 +161,21 @@ const ExplorePage = () => {
                 <div className="page-header">
                     <h1>Library</h1>
                     <h2>Our catalog of books</h2>
-                    <SearchBar onSearch={handleSearch} />
+                    <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
                 </div>
 
-                {searchQuery && (
+                {isSearching && (
+                    <div className="search-results-info">
+                        <p>Searching...</p>
+                    </div>
+                )}
+
+                {!isSearching && searchSummary && (
                     <div className="search-results-info">
                         {filteredBooks.length > 0 ? (
-                            <p>Found {filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''} for "{searchQuery}"</p>
+                            <p>Found {filteredBooks.length} book{filteredBooks.length !== 1 ? 's' : ''} for {searchSummary}</p>
                         ) : (
-                            <p>No books found for "{searchQuery}"</p>
+                            <p>No books found for {searchSummary}</p>
                         )}
                     </div>
                 )}
@@ -164,7 +194,7 @@ const ExplorePage = () => {
                                 onToggleFavourite={handleToggleFavourite}
                             />
                         ))
-                    ) : !searchQuery ? (
+                    ) : !searchSummary ? (
                         <div className="no-books-message">
                             <p>No books available in the catalog.</p>
                         </div>

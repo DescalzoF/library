@@ -26,6 +26,11 @@ app.get('/health', (req, res) => {
 app.get('/api/books', booksController.getAllBooks);
 app.get('/api/books/:id', booksController.getBookById);
 
+app.get('/api/books/search/title', booksController.getBooksByTitle);
+app.get('/api/books/search/author', booksController.getBooksByAuthor);
+app.get('/api/books/search/genre', booksController.getBooksByGenre);
+app.get('/api/search', booksController.searchBooks);
+
 app.post('/api/books/:id/library', booksController.addToLibrary);
 app.delete('/api/books/:id/library', booksController.removeFromLibrary);
 app.get('/api/library', booksController.getLibraryBooks);
@@ -38,6 +43,10 @@ app.use((_req, res) => {
             'GET /health',
             'GET /api/books',
             'GET /api/books/:id',
+            'GET /api/books/search/title?title=searchTerm',
+            'GET /api/books/search/author?author=searchTerm',
+            'GET /api/books/search/genre?genre=searchTerm',
+            'GET /api/search?q=searchTerm',
             'POST /api/books/:id/library',
             'DELETE /api/books/:id/library',
             'GET /api/library'

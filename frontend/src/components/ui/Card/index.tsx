@@ -4,9 +4,9 @@ import FavouriteButton from '../FavouriteButton';
 type BookCardProps = {
     id: string;
     title: string;
-    author: string;
-    genre: string;
-    synopsis: string;
+    author: string | null;
+    genre: string | null;
+    synopsis: string | null;
     isFavourited: boolean;
     onToggleFavourite: (bookId: string, isFavourited: boolean) => void;
 };

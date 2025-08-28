@@ -60,6 +60,134 @@ export class BooksController {
         }
     };
 
+    // New endpoint: Search books by title only
+    getBooksByTitle = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { title } = req.query;
+
+            if (!title || typeof title !== 'string' || !title.trim()) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Title parameter is required'
+                });
+                return;
+            }
+
+            const books = await this.booksService.getBooksByTitle(title.trim());
+            const serializedBooks = this.serializeBigInt(books);
+
+            res.json({
+                success: true,
+                data: serializedBooks,
+                count: serializedBooks.length,
+                message: `Found ${serializedBooks.length} book(s) with title containing "${title.trim()}"`
+            });
+        } catch (error) {
+            console.error('Error searching books by title:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to search books by title',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+
+    // New endpoint: Search books by author only
+    getBooksByAuthor = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { author } = req.query;
+
+            if (!author || typeof author !== 'string' || !author.trim()) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Author parameter is required'
+                });
+                return;
+            }
+
+            const books = await this.booksService.getBooksByAuthor(author.trim());
+            const serializedBooks = this.serializeBigInt(books);
+
+            res.json({
+                success: true,
+                data: serializedBooks,
+                count: serializedBooks.length,
+                message: `Found ${serializedBooks.length} book(s) by author containing "${author.trim()}"`
+            });
+        } catch (error) {
+            console.error('Error searching books by author:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to search books by author',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+
+    // New endpoint: Search books by genre only
+    getBooksByGenre = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { genre } = req.query;
+
+            if (!genre || typeof genre !== 'string' || !genre.trim()) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Genre parameter is required'
+                });
+                return;
+            }
+
+            const books = await this.booksService.getBooksByGenre(genre.trim());
+            const serializedBooks = this.serializeBigInt(books);
+
+            res.json({
+                success: true,
+                data: serializedBooks,
+                count: serializedBooks.length,
+                message: `Found ${serializedBooks.length} book(s) in genre containing "${genre.trim()}"`
+            });
+        } catch (error) {
+            console.error('Error searching books by genre:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to search books by genre',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+
+    // New endpoint: General search across all fields
+    searchBooks = async (req: Request, res: Response): Promise<void> => {
+        try {
+            const { q } = req.query;
+
+            if (!q || typeof q !== 'string' || !q.trim()) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Search query parameter "q" is required'
+                });
+                return;
+            }
+
+            const books = await this.booksService.searchBooks(q.trim());
+            const serializedBooks = this.serializeBigInt(books);
+
+            res.json({
+                success: true,
+                data: serializedBooks,
+                count: serializedBooks.length,
+                message: `Found ${serializedBooks.length} book(s) matching "${q.trim()}"`
+            });
+        } catch (error) {
+            console.error('Error searching books:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to search books',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+
     // GET /api/books/:id - Retrieve a single book by ID
     getBookById = async (req: Request, res: Response): Promise<void> => {
         try {

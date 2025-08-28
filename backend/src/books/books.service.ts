@@ -42,6 +42,46 @@ export class BooksService {
         }
     }
 
+    // New method: Search books by title only
+    async getBooksByTitle(title: string): Promise<BookWithFavoriteStatus[]> {
+        try {
+            const filters: BookSearchFilters = { title };
+            return await this.getAllBooks(filters);
+        } catch (error) {
+            throw new Error('Failed to retrieve books by title');
+        }
+    }
+
+    // New method: Search books by author only
+    async getBooksByAuthor(author: string): Promise<BookWithFavoriteStatus[]> {
+        try {
+            const filters: BookSearchFilters = { author };
+            return await this.getAllBooks(filters);
+        } catch (error) {
+            throw new Error('Failed to retrieve books by author');
+        }
+    }
+
+    // New method: Search books by genre only
+    async getBooksByGenre(genre: string): Promise<BookWithFavoriteStatus[]> {
+        try {
+            const filters: BookSearchFilters = { genre };
+            return await this.getAllBooks(filters);
+        } catch (error) {
+            throw new Error('Failed to retrieve books by genre');
+        }
+    }
+
+    // New method: General search across all fields
+    async searchBooks(searchTerm: string): Promise<BookWithFavoriteStatus[]> {
+        try {
+            const filters: BookSearchFilters = { search: searchTerm };
+            return await this.getAllBooks(filters);
+        } catch (error) {
+            throw new Error('Failed to search books');
+        }
+    }
+
     async getBookById(id: string): Promise<BookWithFavoriteStatus | null> {
         try {
             const bookId = BigInt(id);

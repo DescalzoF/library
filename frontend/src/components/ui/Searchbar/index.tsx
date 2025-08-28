@@ -5,10 +5,11 @@ export interface SearchFilters {
     title?: string;
     author?: string;
     genre?: string;
+    search?: string;
 }
 
 interface SearchBarProps {
-        onSearch: (filters: SearchFilters) => void;
+    onSearch: (filters: SearchFilters) => void;
     onClear?: () => void;
 }
 
@@ -24,11 +25,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClear }) => {
     const handleSimpleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (simpleQuery.trim()) {
-            // Search across all fields for simple search
+            // Use the general search parameter for simple search
             onSearch({
-                title: simpleQuery.trim(),
-                author: simpleQuery.trim(),
-                genre: simpleQuery.trim()
+                search: simpleQuery.trim()
             });
         } else {
             handleClear();
@@ -39,11 +38,17 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClear }) => {
         e.preventDefault();
         const activeFilters: SearchFilters = {};
 
+        // Only include filters that have values
         if (filters.title?.trim()) activeFilters.title = filters.title.trim();
         if (filters.author?.trim()) activeFilters.author = filters.author.trim();
         if (filters.genre?.trim()) activeFilters.genre = filters.genre.trim();
 
-        onSearch(activeFilters);
+        // If no filters are active, clear the search
+        if (Object.keys(activeFilters).length === 0) {
+            handleClear();
+        } else {
+            onSearch(activeFilters);
+        }
     };
 
     const handleClear = () => {
@@ -58,6 +63,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClear }) => {
 
     const updateFilter = (field: keyof SearchFilters, value: string) => {
         setFilters(prev => ({ ...prev, [field]: value }));
+    };
+
+    // Quick search buttons for common searches
+    const handleQuickSearch = (type: 'title' | 'author' | 'genre', value: string) => {
+        if (value.trim()) {
+            onSearch({ [type]: value.trim() });
+        }
     };
 
     return (
@@ -100,41 +112,71 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onClear }) => {
                     <div className="advanced-filters">
                         <div className="filter-group">
                             <label htmlFor="title-filter">Title:</label>
-                            <input
-                                id="title-filter"
-                                type="text"
-                                value={filters.title || ''}
-                                onChange={(e) => updateFilter('title', e.target.value)}
-                                placeholder="Search by title..."
-                                className="search-input filter-input"
-                            />
+                            <div className="filter-input-group">
+                                <input
+                                    id="title-filter"
+                                    type="text"
+                                    value={filters.title || ''}
+                                    onChange={(e) => updateFilter('title', e.target.value)}
+                                    placeholder="Search by title..."
+                                    className="search-input filter-input"
+                                />
+                                <button
+                                    type="button"
+                                    className="quick-search-btn"
+                                    onClick={() => handleQuickSearch('title', filters.title || '')}
+                                    disabled={!filters.title?.trim()}
+                                >
+                                    Search Title
+                                </button>
+                            </div>
                         </div>
                         <div className="filter-group">
                             <label htmlFor="author-filter">Author:</label>
-                            <input
-                                id="author-filter"
-                                type="text"
-                                value={filters.author || ''}
-                                onChange={(e) => updateFilter('author', e.target.value)}
-                                placeholder="Search by author..."
-                                className="search-input filter-input"
-                            />
+                            <div className="filter-input-group">
+                                <input
+                                    id="author-filter"
+                                    type="text"
+                                    value={filters.author || ''}
+                                    onChange={(e) => updateFilter('author', e.target.value)}
+                                    placeholder="Search by author..."
+                                    className="search-input filter-input"
+                                />
+                                <button
+                                    type="button"
+                                    className="quick-search-btn"
+                                    onClick={() => handleQuickSearch('author', filters.author || '')}
+                                    disabled={!filters.author?.trim()}
+                                >
+                                    Search Author
+                                </button>
+                            </div>
                         </div>
                         <div className="filter-group">
                             <label htmlFor="genre-filter">Genre:</label>
-                            <input
-                                id="genre-filter"
-                                type="text"
-                                value={filters.genre || ''}
-                                onChange={(e) => updateFilter('genre', e.target.value)}
-                                placeholder="Search by genre..."
-                                className="search-input filter-input"
-                            />
+                            <div className="filter-input-group">
+                                <input
+                                    id="genre-filter"
+                                    type="text"
+                                    value={filters.genre || ''}
+                                    onChange={(e) => updateFilter('genre', e.target.value)}
+                                    placeholder="Search by genre..."
+                                    className="search-input filter-input"
+                                />
+                                <button
+                                    type="button"
+                                    className="quick-search-btn"
+                                    onClick={() => handleQuickSearch('genre', filters.genre || '')}
+                                    disabled={!filters.genre?.trim()}
+                                >
+                                    Search Genre
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="search-actions">
                         <button type="submit" className="search-button">
-                            SEARCH
+                            SEARCH ALL FILTERS
                         </button>
                         <button type="button" className="clear-button" onClick={handleClear}>
                             CLEAR
