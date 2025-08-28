@@ -1,0 +1,45 @@
+.explore-page {
+    display: flex;
+    min-height: 100vh;
+}
+
+.page-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    margin-bottom: 10px;
+    color: var(--color-grey-dark);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 var(--color-grey-light);
+}
+
+.page-header h2 {
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 8px;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.books-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 1200px;
+}

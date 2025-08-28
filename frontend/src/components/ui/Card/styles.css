@@ -1,0 +1,86 @@
+.book-card {
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-grey-light) 50%, var(--color-white) 100%);
+    border: 2px solid var(--color-grey-dark);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px;
+    width: 300px;
+    box-shadow:
+            inset 1px 1px 0 rgba(255,255,255,0.6),
+            inset -1px -1px 0 rgba(0,0,0,0.2),
+            3px 3px 6px rgba(0,0,0,0.2);
+    font-family: 'Courier New', monospace;
+    position: relative;
+}
+
+.book-card::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border-radius: 50%;
+    box-shadow: inset 1px 1px 0 rgba(255,255,255,0.3);
+}
+
+.book-card-header {
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+}
+
+.book-title {
+    margin: 0 0 8px 0;
+    color: var(--color-grey-dark);
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 var(--color-grey-light);
+}
+
+.book-author {
+    color: var(--color-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.book-genre {
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--color-grey-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.genre-label {
+    font-weight: bold;
+    color: var(--color-accent);
+}
+
+.book-synopsis {
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.synopsis-label {
+    font-weight: bold;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.synopsis-text {
+    margin: 0;
+    color: var(--color-text);
+    text-align: justify;
+    padding: 8px;
+    background: rgba(255,255,255,0.3);
+    border-left: 3px solid var(--color-grey-medium);
+    border-radius: 0 4px 4px 0;
+}
