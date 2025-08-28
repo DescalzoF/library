@@ -22,7 +22,7 @@ const ExplorePage = () => {
             setFilteredBooks(books);
         } else {
             const filtered = books.filter(book =>
-                book.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.genre.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.synopsis.toLowerCase().includes(searchQuery.toLowerCase())
@@ -156,7 +156,7 @@ const ExplorePage = () => {
                             <BookCard
                                 key={book.id}
                                 id={book.id}
-                                name={book.name}
+                                title={book.title}
                                 author={book.author}
                                 genre={book.genre}
                                 synopsis={book.synopsis}

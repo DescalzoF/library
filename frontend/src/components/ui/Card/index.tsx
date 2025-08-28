@@ -3,7 +3,7 @@ import FavouriteButton from '../FavouriteButton';
 
 type BookCardProps = {
     id: string;
-    name: string;
+    title: string;
     author: string;
     genre: string;
     synopsis: string;
@@ -11,11 +11,11 @@ type BookCardProps = {
     onToggleFavourite: (bookId: string, isFavourited: boolean) => void;
 };
 
-const BookCard = ({ id, name, author, genre, synopsis, isFavourited, onToggleFavourite }: BookCardProps) => {
+const BookCard = ({ id, title, author, genre, synopsis, isFavourited, onToggleFavourite }: BookCardProps) => {
     return (
         <div className="book-card">
             <div className="book-card-header">
-                <h3 className="book-title">{name}</h3>
+                <h3 className="book-title">{title}</h3>
                 <div className="book-author">By: {author}</div>
             </div>
             <div className="book-genre">

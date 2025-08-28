@@ -25,9 +25,6 @@ app.get('/health', (req, res) => {
 
 app.get('/api/books', booksController.getAllBooks);
 app.get('/api/books/:id', booksController.getBookById);
-app.post('/api/books', booksController.createBook);
-app.put('/api/books/:id', booksController.updateBook);
-app.delete('/api/books/:id', booksController.deleteBook);
 
 app.post('/api/books/:id/library', booksController.addToLibrary);
 app.delete('/api/books/:id/library', booksController.removeFromLibrary);
@@ -41,9 +38,6 @@ app.use((_req, res) => {
             'GET /health',
             'GET /api/books',
             'GET /api/books/:id',
-            'POST /api/books',
-            'PUT /api/books/:id',
-            'DELETE /api/books/:id',
             'POST /api/books/:id/library',
             'DELETE /api/books/:id/library',
             'GET /api/library'
@@ -63,5 +57,4 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, () => {
     console.log(`🚀 Books API server is running on port ${PORT}`);
     console.log(`📚 Health check: http://localhost:${PORT}/health`);
-    console.log(`📖 API Base URL: http://localhost:${PORT}/api`);
 });

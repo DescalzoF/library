@@ -15,9 +15,6 @@ const createTestApp = () => {
 
     app.get('/api/books', booksController.getAllBooks);
     app.get('/api/books/:id', booksController.getBookById);
-    app.post('/api/books', booksController.createBook);
-    app.put('/api/books/:id', booksController.updateBook);
-    app.delete('/api/books/:id', booksController.deleteBook);
     app.post('/api/books/:id/library', booksController.addToLibrary);
     app.delete('/api/books/:id/library', booksController.removeFromLibrary);
     app.get('/api/library', booksController.getLibraryBooks);
@@ -40,72 +37,6 @@ describe('BooksController', () => {
 
     afterAll(async () => {
         await prisma.$disconnect();
-    });
-
-    describe('POST /api/books', () => {
-        it('should create a new book successfully', async () => {
-            const bookData = {
-                title: 'Test Book',
-                author: 'Test Author',
-                genre: 'Fiction',
-                synopsis: 'A test book synopsis'
-            };
-
-            const response = await request(app)
-                .post('/api/books')
-                .send(bookData)
-                .expect(201);
-
-            expect(response.body).toMatchObject({
-                success: true,
-                message: 'Book created successfully',
-                data: {
-                    title: 'Test Book',
-                    author: 'Test Author',
-                    genre: 'Fiction',
-                    synopsis: 'A test book synopsis',
-                    isFavorite: false
-                }
-            });
-
-            expect(response.body.data.id).toBeDefined();
-        });
-
-        it('should fail to create book without title', async () => {
-            const bookData = {
-                author: 'Test Author',
-                genre: 'Fiction'
-            };
-
-            const response = await request(app)
-                .post('/api/books')
-                .send(bookData)
-                .expect(400);
-
-            expect(response.body).toMatchObject({
-                success: false,
-                message: 'Book title is required'
-            });
-        });
-
-        it('should create book with only title (minimal data)', async () => {
-            const bookData = {
-                title: 'Minimal Book'
-            };
-
-            const response = await request(app)
-                .post('/api/books')
-                .send(bookData)
-                .expect(201);
-
-            expect(response.body.data).toMatchObject({
-                title: 'Minimal Book',
-                author: null,
-                genre: null,
-                synopsis: null,
-                isFavorite: false
-            });
-        });
     });
 
     describe('GET /api/books', () => {
@@ -201,109 +132,6 @@ describe('BooksController', () => {
             expect(response.body).toMatchObject({
                 success: false,
                 message: 'Invalid book ID or failed to retrieve book'
-            });
-        });
-    });
-
-    describe('PUT /api/books/:id', () => {
-        let bookId: string;
-
-        beforeEach(async () => {
-            const book = await prisma.book.create({
-                data: {
-                    title: 'Original Title',
-                    author: 'Original Author',
-                    genre: 'Original Genre'
-                }
-            });
-            bookId = book.id.toString();
-        });
-
-        it('should update book successfully', async () => {
-            const updateData = {
-                title: 'Updated Title',
-                author: 'Updated Author'
-            };
-
-            const response = await request(app)
-                .put(`/api/books/${bookId}`)
-                .send(updateData)
-                .expect(200);
-
-            expect(response.body).toMatchObject({
-                success: true,
-                message: 'Book updated successfully',
-                data: {
-                    title: 'Updated Title',
-                    author: 'Updated Author',
-                    genre: 'Original Genre' // Should remain unchanged
-                }
-            });
-        });
-
-        it('should return 404 for non-existent book', async () => {
-            const response = await request(app)
-                .put('/api/books/999999')
-                .send({ title: 'New Title' })
-                .expect(404);
-
-            expect(response.body).toMatchObject({
-                success: false,
-                message: 'Book not found'
-            });
-        });
-
-        it('should fail to update with empty title', async () => {
-            const response = await request(app)
-                .put(`/api/books/${bookId}`)
-                .send({ title: '' })
-                .expect(400);
-
-            expect(response.body).toMatchObject({
-                success: false,
-                message: 'Failed to update book'
-            });
-        });
-    });
-
-    describe('DELETE /api/books/:id', () => {
-        let bookId: string;
-
-        beforeEach(async () => {
-            const book = await prisma.book.create({
-                data: {
-                    title: 'Book to Delete',
-                    author: 'Test Author'
-                }
-            });
-            bookId = book.id.toString();
-        });
-
-        it('should delete book successfully', async () => {
-            const response = await request(app)
-                .delete(`/api/books/${bookId}`)
-                .expect(200);
-
-            expect(response.body).toMatchObject({
-                success: true,
-                message: 'Book deleted successfully'
-            });
-
-            // Verify book is actually deleted
-            const deletedBook = await prisma.book.findUnique({
-                where: { id: BigInt(bookId) }
-            });
-            expect(deletedBook).toBeNull();
-        });
-
-        it('should return 404 for non-existent book', async () => {
-            const response = await request(app)
-                .delete('/api/books/999999')
-                .expect(404);
-
-            expect(response.body).toMatchObject({
-                success: false,
-                message: 'Book not found'
             });
         });
     });
@@ -443,45 +271,6 @@ describe('BooksController', () => {
                     data: []
                 });
             });
-        });
-    });
-
-    describe('Integration tests', () => {
-        it('should show correct favorite status after adding to library', async () => {
-            // Create a book
-            const createResponse = await request(app)
-                .post('/api/books')
-                .send({ title: 'Integration Test Book' })
-                .expect(201);
-
-            const bookId = createResponse.body.data.id;
-
-            // Initially should not be favorite
-            let getResponse = await request(app)
-                .get(`/api/books/${bookId}`)
-                .expect(200);
-
-            expect(getResponse.body.data.isFavorite).toBe(false);
-
-            // Add to library
-            await request(app)
-                .post(`/api/books/${bookId}/library`)
-                .expect(200);
-
-            // Now should be favorite
-            getResponse = await request(app)
-                .get(`/api/books/${bookId}`)
-                .expect(200);
-
-            expect(getResponse.body.data.isFavorite).toBe(true);
-
-            // Should appear in library
-            const libraryResponse = await request(app)
-                .get('/api/library')
-                .expect(200);
-
-            expect(libraryResponse.body.count).toBe(1);
-            expect(libraryResponse.body.data[0].id).toBe(bookId);
         });
     });
 });

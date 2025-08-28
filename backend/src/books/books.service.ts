@@ -1,6 +1,6 @@
-import type { Book } from '@prisma/client';
-import { BooksRepository } from './books.repository.js';
-import type { BookSearchFilters } from './books.repository.js';
+import type {Book} from '@prisma/client';
+import type {BookSearchFilters} from './books.repository.js';
+import {BooksRepository} from './books.repository.js';
 
 export interface CreateBookDto {
     title: string;
@@ -31,15 +31,12 @@ export class BooksService {
         try {
             const books = await this.booksRepository.getAllBooks(filters);
 
-            // Add favorite status to each book
-            const booksWithFavorites = await Promise.all(
+            return await Promise.all(
                 books.map(async (book) => ({
                     ...book,
                     isFavorite: await this.booksRepository.isBookInFavorites(book.id)
                 }))
             );
-
-            return booksWithFavorites;
         } catch (error) {
             throw new Error('Failed to retrieve books');
         }
@@ -62,87 +59,6 @@ export class BooksService {
             };
         } catch (error) {
             throw new Error('Invalid book ID or failed to retrieve book');
-        }
-    }
-
-    async createBook(bookData: CreateBookDto): Promise<BookWithFavoriteStatus> {
-        try {
-            // Validate required fields
-            if (!bookData.title || bookData.title.trim() === '') {
-                throw new Error('Book title is required');
-            }
-
-            const book = await this.booksRepository.createBook({
-                title: bookData.title.trim(),
-                author: bookData.author?.trim() || null,
-                genre: bookData.genre?.trim() || null,
-                synopsis: bookData.synopsis?.trim() || null
-            });
-
-            return {
-                ...book,
-                isFavorite: false
-            };
-        } catch (error) {
-            if (error instanceof Error) {
-                throw error;
-            }
-            throw new Error('Failed to create book');
-        }
-    }
-
-    async updateBook(id: string, bookData: UpdateBookDto): Promise<BookWithFavoriteStatus | null> {
-        try {
-            const bookId = BigInt(id);
-
-            // Clean up the data
-            const cleanData: Partial<Omit<Book, 'id'>> = {};
-
-            if (bookData.title !== undefined) {
-                if (bookData.title.trim() === '') {
-                    throw new Error('Book title cannot be empty');
-                }
-                cleanData.title = bookData.title.trim();
-            }
-
-            if (bookData.author !== undefined) {
-                cleanData.author = bookData.author?.trim() || null;
-            }
-
-            if (bookData.genre !== undefined) {
-                cleanData.genre = bookData.genre?.trim() || null;
-            }
-
-            if (bookData.synopsis !== undefined) {
-                cleanData.synopsis = bookData.synopsis?.trim() || null;
-            }
-
-            const updatedBook = await this.booksRepository.updateBook(bookId, cleanData);
-
-            if (!updatedBook) {
-                return null;
-            }
-
-            const isFavorite = await this.booksRepository.isBookInFavorites(bookId);
-
-            return {
-                ...updatedBook,
-                isFavorite
-            };
-        } catch (error) {
-            if (error instanceof Error) {
-                throw error;
-            }
-            throw new Error('Invalid book ID or failed to update book');
-        }
-    }
-
-    async deleteBook(id: string): Promise<boolean> {
-        try {
-            const bookId = BigInt(id);
-            return await this.booksRepository.deleteBook(bookId);
-        } catch (error) {
-            throw new Error('Invalid book ID or failed to delete book');
         }
     }
 

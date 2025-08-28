@@ -21,7 +21,7 @@ const FavouritePage = () => {
             setFilteredBooks(favouriteBooks);
         } else {
             const filtered = favouriteBooks.filter(book =>
-                book.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.genre.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 book.synopsis.toLowerCase().includes(searchQuery.toLowerCase())
@@ -150,7 +150,7 @@ const FavouritePage = () => {
                             <BookCard
                                 key={book.id}
                                 id={book.id}
-                                name={book.name}
+                                title={book.title}
                                 author={book.author}
                                 genre={book.genre}
                                 synopsis={book.synopsis}

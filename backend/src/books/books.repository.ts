@@ -7,7 +7,6 @@ export interface BookSearchFilters {
     title?: string;
     author?: string;
     genre?: string;
-    // Add a general search parameter that searches across all fields
     search?: string;
 }
 
@@ -15,7 +14,6 @@ export class BooksRepository {
     async getAllBooks(filters?: BookSearchFilters): Promise<Book[]> {
         const where: any = {};
 
-        // If there's a general search term, search across title, author, and genre
         if (filters?.search && filters.search.trim()) {
             const searchTerm = filters.search.trim();
 
@@ -64,34 +62,6 @@ export class BooksRepository {
         return prisma.book.findUnique({
             where: {id}
         });
-    }
-
-    async createBook(bookData: Omit<Book, 'id'>): Promise<Book> {
-        return prisma.book.create({
-            data: bookData
-        });
-    }
-
-    async updateBook(id: bigint, bookData: Partial<Omit<Book, 'id'>>): Promise<Book | null> {
-        try {
-            return await prisma.book.update({
-                where: { id },
-                data: bookData
-            });
-        } catch (error) {
-            return null;
-        }
-    }
-
-    async deleteBook(id: bigint): Promise<boolean> {
-        try {
-            await prisma.book.delete({
-                where: { id }
-            });
-            return true;
-        } catch (error) {
-            return false;
-        }
     }
 
     async addToFavorites(bookId: bigint): Promise<Favorite | null> {

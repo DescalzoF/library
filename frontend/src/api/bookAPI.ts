@@ -2,11 +2,11 @@ const API_BASE_URL = 'http://localhost:5174/api';
 
 export interface Book {
     id: string;
-    title: string;  // Changed from 'name' to 'title' to match backend
+    title: string;
     author: string | null;
     genre: string | null;
     synopsis: string | null;
-    isFavorite: boolean;  // Changed from 'isInLibrary' to match backend
+    isFavorite: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -20,6 +20,7 @@ export interface SearchFilters {
     title?: string;
     author?: string;
     genre?: string;
+    search?: string; // Add general search parameter
 }
 
 export const booksApi = {
@@ -29,9 +30,16 @@ export const booksApi = {
 
             if (filters) {
                 const params = new URLSearchParams();
-                if (filters.title) params.append('title', filters.title);
-                if (filters.author) params.append('author', filters.author);
-                if (filters.genre) params.append('genre', filters.genre);
+
+                // If general search is provided, use it (takes priority)
+                if (filters.search?.trim()) {
+                    params.append('search', filters.search.trim());
+                } else {
+                    // Otherwise, use individual field filters
+                    if (filters.title?.trim()) params.append('title', filters.title.trim());
+                    if (filters.author?.trim()) params.append('author', filters.author.trim());
+                    if (filters.genre?.trim()) params.append('genre', filters.genre.trim());
+                }
 
                 if (params.toString()) {
                     url += `?${params.toString()}`;
@@ -40,7 +48,8 @@ export const booksApi = {
 
             const response = await fetch(url);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
@@ -49,87 +58,12 @@ export const booksApi = {
         }
     },
 
-    getBookById: async (id: string): Promise<ApiResponse<Book>> => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/books/${id}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching book:', error);
-            throw error;
-        }
-    },
-
-    createBook: async (bookData: {
-        title: string;
-        author?: string;
-        genre?: string;
-        synopsis?: string;
-    }): Promise<ApiResponse<Book>> => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/books`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(bookData),
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error creating book:', error);
-            throw error;
-        }
-    },
-
-    updateBook: async (id: string, bookData: {
-        title?: string;
-        author?: string;
-        genre?: string;
-        synopsis?: string;
-    }): Promise<ApiResponse<Book>> => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/books/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(bookData),
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error updating book:', error);
-            throw error;
-        }
-    },
-
-    deleteBook: async (id: string): Promise<ApiResponse<any>> => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/books/${id}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error deleting book:', error);
-            throw error;
-        }
-    },
-
     getLibraryBooks: async (): Promise<ApiResponse<Book[]>> => {
         try {
             const response = await fetch(`${API_BASE_URL}/library`);
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
@@ -147,7 +81,8 @@ export const booksApi = {
                 },
             });
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
@@ -165,26 +100,12 @@ export const booksApi = {
                 },
             });
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
             return await response.json();
         } catch (error) {
             console.error('Error removing from library:', error);
-            throw error;
-        }
-    },
-
-    // Utility method for simple text search across all fields
-    searchBooks: async (query: string): Promise<ApiResponse<Book[]>> => {
-        try {
-            const filters: SearchFilters = {
-                title: query,
-                author: query,
-                genre: query
-            };
-            return await booksApi.getAllBooks(filters);
-        } catch (error) {
-            console.error('Error searching books:', error);
             throw error;
         }
     }

@@ -8,7 +8,7 @@ export interface SearchFilters {
 }
 
 interface SearchBarProps {
-    onSearch: (filters: SearchFilters) => void;
+        onSearch: (filters: SearchFilters) => void;
     onClear?: () => void;
 }
 

@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import { BooksService } from './books.service.js';
-import type { CreateBookDto, UpdateBookDto } from './books.service.js';
 import type { BookSearchFilters } from './books.repository.js';
 
 export class BooksController {
@@ -101,119 +100,6 @@ export class BooksController {
         }
     };
 
-    // POST /api/books - Create a new book
-    createBook = async (req: Request, res: Response): Promise<void> => {
-        try {
-            const bookData: CreateBookDto = req.body;
-
-            if (!bookData.title) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Book title is required'
-                });
-                return;
-            }
-
-            const book = await this.booksService.createBook(bookData);
-
-            // Serialize BigInt values before sending response
-            const serializedBook = this.serializeBigInt(book);
-
-            res.status(201).json({
-                success: true,
-                data: serializedBook,
-                message: 'Book created successfully'
-            });
-        } catch (error) {
-            console.error('Error creating book:', error);
-            res.status(400).json({
-                success: false,
-                message: 'Failed to create book',
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-        }
-    };
-
-    // PUT /api/books/:id - Update a book
-    updateBook = async (req: Request, res: Response): Promise<void> => {
-        try {
-            const { id } = req.params;
-            const bookData: UpdateBookDto = req.body;
-
-            if (!id) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Book ID is required'
-                });
-                return;
-            }
-
-            const updatedBook = await this.booksService.updateBook(id, bookData);
-
-            if (!updatedBook) {
-                res.status(404).json({
-                    success: false,
-                    message: 'Book not found'
-                });
-                return;
-            }
-
-            // Serialize BigInt values before sending response
-            const serializedBook = this.serializeBigInt(updatedBook);
-
-            res.json({
-                success: true,
-                data: serializedBook,
-                message: 'Book updated successfully'
-            });
-        } catch (error) {
-            console.error('Error updating book:', error);
-            res.status(400).json({
-                success: false,
-                message: 'Failed to update book',
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-        }
-    };
-
-    // DELETE /api/books/:id - Delete a book
-    deleteBook = async (req: Request, res: Response): Promise<void> => {
-        try {
-            const { id } = req.params;
-
-            if (!id) {
-                res.status(400).json({
-                    success: false,
-                    message: 'Book ID is required'
-                });
-                return;
-            }
-
-            const deleted = await this.booksService.deleteBook(id);
-
-            if (!deleted) {
-                res.status(404).json({
-                    success: false,
-                    message: 'Book not found'
-                });
-                return;
-            }
-
-            res.json({
-                success: true,
-                message: 'Book deleted successfully'
-            });
-        } catch (error) {
-            console.error('Error deleting book:', error);
-            res.status(400).json({
-                success: false,
-                message: 'Failed to delete book',
-                error: error instanceof Error ? error.message : 'Unknown error'
-            });
-        }
-    };
-
-    // POST /api/books/:id/library - Add a book to the global library (favorites)
     addToLibrary = async (req: Request, res: Response): Promise<void> => {
         try {
             const { id } = req.params;
@@ -235,8 +121,6 @@ export class BooksController {
                 });
                 return;
             }
-
-            // Serialize BigInt values before sending response
             const serializedBook = this.serializeBigInt(book);
 
             res.json({
@@ -254,7 +138,6 @@ export class BooksController {
         }
     };
 
-    // DELETE /api/books/:id/library - Remove a book from the global library
     removeFromLibrary = async (req: Request, res: Response): Promise<void> => {
         try {
             const { id } = req.params;
@@ -291,7 +174,6 @@ export class BooksController {
         }
     };
 
-    // GET /api/library - Retrieve all books in the global library
     getLibraryBooks = async (req: Request, res: Response): Promise<void> => {
         try {
             const libraryBooks = await this.booksService.getLibraryBooks();
